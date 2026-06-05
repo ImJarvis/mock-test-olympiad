@@ -1,0 +1,68 @@
+Here is the consolidated Project Requirement Document (PRD), updated with a dedicated section detailing exactly how the LLM or developer should build the adaptive algorithm logic using the platform's data.
+
+***
+
+# Project Overview: Adaptive Gamified Learning Platform for Kids (< 10 Years)
+
+**Objective:** Build a web/mobile application that transforms traditional Olympiad mock tests into an engaging, gamified learning experience for children under 10. The app will use adaptive testing to assess a child's cognitive strengths and weaknesses without them feeling like they are taking a test. 
+
+**Target Audience:** Children in Grades II and III (approx. 7-9 years old).
+
+---
+
+## 1. Source Material Analysis & Question Tagging (The Database)
+To build an adaptive platform, the database must be seeded with questions modeled after standard Grade II and Grade III Aptitude Mock Tests. Every question must be tagged to drive the algorithm.
+
+**Content to be digitized and tagged:**
+*   **Visual & Spatial Reasoning:** Includes Grade II questions on missing visual patterns and combining two visual patterns, and Grade III questions on identifying polygons with maximum sides, recognizing 3D shapes, and identifying mirror images of sentences.
+*   **Quantitative Aptitude (Math):** Includes Grade II decreasing number sequences like '32, 31, 29, 26', and Grade III word problems involving watermelon weights, currency exchanges (10-rupee notes in a 50-rupee note), time conversions like 49 days into weeks, and interpreting pie charts into fractions.
+*   **Logical Deductions:** Includes Grade II visual analogies, such as "If B is to Binoculars, then K is to...", and Grade III alphabetical and alphanumeric sequences like '11P, 33Q, 55R'.
+*   **Verbal & Language Skills:** Includes Grade II reading comprehension stories about a cat reacting to a dog, and Grade III grammar exercises such as utilizing context vocabulary like 'adjacent to' or 'astronaut', and identifying adverbs like 'loudly'.
+
+---
+
+## 2. The "Kid Profile" (Skill Radar)
+Instead of a flat percentage score, the backend will generate a multi-dimensional **Skill Radar** (presented to the child as **"Hero Stats"**). 
+
+The database schema must map every question to one of these four core skills:
+1.  **Shape Shifter (Visual/Spatial):** Mastered through mirror images and shape manipulation.
+2.  **Number Detective (Quantitative):** Mastered through math word problems, fractions, and sequences.
+3.  **Pattern Master (Logic):** Mastered through alphanumeric sequences and analogies.
+4.  **Word Explorer (Verbal):** Mastered through grammar rules and reading comprehension.
+
+---
+
+## 3. How to Build the Adaptive Algorithm (Implementation Logic)
+When instructing the LLM to generate the backend logic (e.g., in Node.js or Python), use this exact flow to build the adaptive engine:
+
+**Step 1: Database Schema & Metadata Tagging**
+Every question object in your database (e.g., Firestore or PostgreSQL) must include these keys:
+*   `skill_category`: (e.g., "Number Detective")
+*   `base_grade`: (e.g., "Grade_2" or "Grade_3")
+*   `difficulty_tier`: (1 = Easy, 2 = Medium, 3 = Hard)
+
+**Step 2: User State Management**
+The backend must maintain a `User_Profile` object that tracks the current `proficiency_level` (ranging from 1.0 to 3.0) for *each* of the four skill categories independently. All new users start with a default proficiency of `1.0` in all categories.
+
+**Step 3: The "Quest" Generator (The Routing Logic)**
+Instead of serving a whole test, the algorithm generates a "Quest" of 3 to 5 questions.
+*   **Querying the DB:** The system looks at the child's `User_Profile`. If their `Number Detective` proficiency is currently `1.5`, the backend queries the database for math questions where `base_grade == Grade_2` and `difficulty_tier == 2`. 
+
+**Step 4: The Evaluation & Adjustment Formula**
+After a Quest is submitted, the algorithm recalculates the profile:
+*   **The "Level Up" (Strength):** If the user scores 100% on questions tagged `Shape Shifter`, increase their `Shape Shifter` proficiency by `+0.5`. If proficiency crosses `2.0`, the next generation will automatically pull `Grade_3` visual questions.
+*   **The "Safety Net" (Struggle):** If the user scores below 50% on `Word Explorer` questions (e.g., failing to identify adverbs), decrease their proficiency by `-0.25`. For the next Quest, the algorithm must select lower-tier difficulty questions for this category and automatically flip a `show_hints: true` flag in the UI payload to provide scaffolding.
+
+---
+
+## 4. UI/UX & Psychological Framework (For Kids < 10)
+The frontend code (React/React Native) must strictly adhere to these psychological design principles:
+*   **Micro-Assessments:** Tests are never presented as long 30-question exams. They are broken into bite-sized "Quests" of 3 to 5 questions to maintain attention.
+*   **No Failure States:** The UI must not use red "X" marks or negative buzzers. Incorrect answers should gently gray out, or a supportive mascot animation should offer a hint.
+*   **Immediate "Juice":** Correct answers must trigger immediate visual and auditory feedback (sparkles, pops, "ding" sounds).
+*   **Micro-Rewards Engine:**
+    *   *Streaks:* Implement a flame icon multiplier for 3 consecutive correct answers.
+    *   *Mystery Packs:* Reward completed quests with a digital "pack" the user can tap to tear open, revealing collectible stickers.
+    *   *Contextual Unlocks:* Tie rewards to question content (e.g., answering the Grade III "astronaut" question unlocks a space helmet for their avatar).
+
+---
