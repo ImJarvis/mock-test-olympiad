@@ -125,7 +125,7 @@ export default function Onboarding() {
                   <label style={{ display: 'block', marginBottom: '16px', fontWeight: 700, fontSize: '1.1rem' }}>
                     📚 Which grade are you in?
                   </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                  <div className="grade-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '14px' }}>
                     {GRADES.map(g => (
                       <motion.button
                         key={g.id}
@@ -159,7 +159,7 @@ export default function Onboarding() {
                   <label style={{ display: 'block', marginBottom: '16px', fontWeight: 700, fontSize: '1.1rem' }}>
                     🎨 Choose your adventure theme!
                   </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                  <div className="theme-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px' }}>
                     {THEMES.map(t => (
                       <motion.button
                         key={t.id}

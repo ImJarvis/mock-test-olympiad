@@ -223,3 +223,30 @@ input { font-family: var(--font-body); }
   width: 100%;
   max-width: 560px;
 }
+
+/* ── Mobile Responsive Overrides ─────────────────────────── */
+@media (max-width: 600px) {
+  html { font-size: 14px; }
+  
+  .glass {
+    padding: 24px 20px !important;
+  }
+  
+  .page-container {
+    padding: 16px 12px;
+  }
+
+  .theme-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+  
+  .mascot {
+    font-size: 3rem;
+  }
+  
+  .btn {
+    padding: 12px 20px;
+  }
+}
+
