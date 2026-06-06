@@ -80,32 +80,7 @@ export default function QuestFeedback() {
             ))}
           </div>
 
-          {/* Proficiency snapshot */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '28px' }}>
-            {Object.entries(proficiency).map(([skill, val]) => (
-              <div
-                key={skill}
-                style={{
-                  background: 'rgba(255,255,255,0.07)', borderRadius: 14, padding: '12px 14px', textAlign: 'left',
-                  border: `1px solid ${SKILL_COLORS[skill]}33`,
-                }}
-              >
-                <div style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: 4 }}>{SKILL_ICONS[skill]} {skill}</div>
-                <div style={{ fontWeight: 800, color: SKILL_COLORS[skill], fontSize: '0.95rem' }}>
-                  {getProficiencyLabel(val)}
-                </div>
-                <div className="progress-bar-track" style={{ marginTop: 6, height: 6 }}>
-                  <div
-                    className="progress-bar-fill"
-                    style={{
-                      width: `${((val - 1) / 2) * 100}%`,
-                      background: SKILL_COLORS[skill],
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+
 
           {/* Actions */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>

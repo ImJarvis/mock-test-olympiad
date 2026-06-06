@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti';
 import { useGameStore } from '../store/useGameStore';
 import { SKILL_COLORS, SKILL_ICONS } from '../data/questions';
 import { getStreakMultiplier } from '../engine/adaptive';
+import { CHARACTERS } from './Onboarding';
 
 export default function Quest() {
   const {
@@ -15,15 +16,22 @@ export default function Quest() {
     showHints,
     questsCompleted,
     theme,
+    character,
   } = useGameStore();
+
+  const activeChar = CHARACTERS.find(c => c.id === character) || CHARACTERS[0];
 
   const [selected, setSelected] = useState(null);        // option string selected
   const [answered, setAnswered] = useState(false);       // if question is locked in
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showDelayedHint, setShowDelayedHint] = useState(false);
 
   const question = currentQuest[currentQuestionIndex];
   const progress = (currentQuestionIndex / currentQuest.length) * 100;
-  const hintActive = showHints?.[question?.skill_category];
+  
+  const needsHint = showHints?.[question?.skill_category];
+  const hintActive = needsHint && showDelayedHint;
+  
   const streakMultiplier = getStreakMultiplier(currentStreak);
 
   // Reset on new question
@@ -31,7 +39,19 @@ export default function Quest() {
     setSelected(null);
     setAnswered(false);
     setShowFeedback(false);
+    setShowDelayedHint(false);
   }, [currentQuestionIndex]);
+
+  // Hint delay timer (100 seconds)
+  useEffect(() => {
+    if (answered) return;
+    
+    const timerId = setTimeout(() => {
+      setShowDelayedHint(true);
+    }, 100000); // 100 seconds
+
+    return () => clearTimeout(timerId);
+  }, [currentQuestionIndex, answered]);
 
   if (!question) return null;
 
@@ -42,7 +62,6 @@ export default function Quest() {
 
     const isCorrect = option === question.correctAnswer;
     setShowFeedback(true);
-
     if (isCorrect) {
       confetti({
         particleCount: streakMultiplier >= 2 ? 200 : 80,
@@ -51,10 +70,10 @@ export default function Quest() {
         colors: ['#8b5cf6', '#f59e0b', '#10b981', '#f43f5e'],
       });
     }
+  };
 
-    setTimeout(() => {
-      submitAnswer(isCorrect);
-    }, 2000);
+  const handleNext = () => {
+    submitAnswer(selected === question.correctAnswer);
   };
 
   const getOptionClass = (option) => {
@@ -98,6 +117,61 @@ export default function Quest() {
             style={{ background: `linear-gradient(90deg, ${skillColor}, #8b5cf6)` }}
           />
         </div>
+        {/* Character Conversation Area (Sleek, Above Question) */}
+        <AnimatePresence>
+          {showFeedback && (
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                marginBottom: '16px',
+                padding: '12px 16px',
+                borderRadius: '20px',
+                background: selected === question.correctAnswer ? 'rgba(16,185,129,0.15)' : 'rgba(100,100,120,0.15)',
+                border: `1px solid ${selected === question.correctAnswer ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.15)'}`,
+                backdropFilter: 'blur(10px)'
+              }}
+            >
+              {/* Avatar */}
+              <div style={{ flexShrink: 0, width: '40px', height: '40px', borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', color: '#8b5cf6', fontSize: '1.2rem', fontWeight: 800, border: '2px solid #8b5cf6' }}>
+                {activeChar.icon ? (
+                  <img src={activeChar.icon} alt={activeChar.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  kidName ? kidName.trim()[0].toUpperCase() : '?'
+                )}
+              </div>
+
+              {/* Text content */}
+              <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                <div style={{ fontSize: '0.9rem', lineHeight: 1.3 }}>
+                  {selected === question.correctAnswer ? (
+                     <span style={{ color: '#34d399', fontWeight: 700 }}>🎉 Correct! {question.explanation}</span>
+                  ) : (
+                     <span style={{ color: '#e2e8f0' }}>
+                       <strong style={{ color: '#94a3b8' }}>💪 Almost!</strong> The answer is <strong style={{ color: '#34d399' }}>{question.correctAnswer}</strong>. {question.explanation}
+                       {question.hint && !hintActive && (
+                         <span style={{ color: '#fbbf24', marginLeft: '6px' }}>💡 Hint: {question.hint}</span>
+                       )}
+                     </span>
+                  )}
+                </div>
+                
+                <motion.button
+                  whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                  className="btn btn-primary"
+                  onClick={handleNext}
+                  style={{ padding: '6px 16px', fontSize: '0.9rem', borderRadius: '20px', flexShrink: 0, background: '#8b5cf6' }}
+                >
+                  Next ➡️
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Question card */}
         <AnimatePresence mode="wait">
@@ -165,37 +239,7 @@ export default function Quest() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Feedback panel */}
-        <AnimatePresence>
-          {showFeedback && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-              style={{
-                padding: '20px 24px',
-                borderRadius: 'var(--radius-lg)',
-                background: selected === question.correctAnswer
-                  ? 'rgba(16,185,129,0.18)'
-                  : 'rgba(100,100,120,0.2)',
-                border: `1px solid ${selected === question.correctAnswer ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.15)'}`,
-              }}
-            >
-              {selected === question.correctAnswer ? (
-                <>
-                  <p style={{ fontWeight: 800, fontSize: '1.1rem', color: '#34d399' }}>🎉 Excellent work!</p>
-                  <p style={{ marginTop: 6, opacity: 0.85, fontSize: '0.95rem' }}>{question.explanation}</p>
-                </>
-              ) : (
-                <>
-                  <p style={{ fontWeight: 800, fontSize: '1.1rem', color: '#94a3b8' }}>💪 Almost there!</p>
-                  <p style={{ marginTop: 6, opacity: 0.85, fontSize: '0.95rem' }}>
-                    The correct answer is <strong style={{ color: '#34d399' }}>{question.correctAnswer}</strong>.{' '}
-                    {question.explanation}
-                  </p>
-                </>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+
 
       </div>
     </div>

@@ -14,17 +14,24 @@ const GRADES = [
   { id: 'Grade_3', label: 'Grade 3', subtitle: 'Ages 8–9' },
 ];
 
+export const CHARACTERS = [
+  { id: 'explorer', name: 'Explorer', icon: '/icons/explorer.png' },
+  { id: 'magician', name: 'Magician', icon: '/icons/magician.png' },
+  { id: 'astronaut', name: 'Astronaut', icon: '/icons/astronaut.png' },
+];
+
 export default function Onboarding() {
   const { setProfile, startGame } = useGameStore();
   const [kidName, setKidName] = useState('');
   const [theme, setTheme] = useState('space');
   const [grade, setGrade] = useState('Grade_2');
-  const [step, setStep] = useState(0); // 0=name, 1=grade, 2=theme
+  const [character, setCharacter] = useState('explorer');
+  const [step, setStep] = useState(0); // 0=name, 1=grade, 2=theme, 3=character
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (step < 2) { setStep(s => s + 1); return; }
-    setProfile({ kidName: kidName.trim() || 'Hero', grade, theme });
+    if (step < 3) { setStep(s => s + 1); return; }
+    setProfile({ kidName: kidName.trim() || 'Hero', grade, theme, character });
     startGame();
   };
 
@@ -68,7 +75,7 @@ export default function Onboarding() {
 
           {/* Step indicator */}
           <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '28px' }}>
-            {[0, 1, 2].map(i => (
+            {[0, 1, 2, 3].map(i => (
               <div
                 key={i}
                 style={{
@@ -183,6 +190,67 @@ export default function Onboarding() {
                 </motion.div>
               )}
 
+              {/* Step 3: Character */}
+              {step === 3 && (
+                <motion.div
+                  key="step3"
+                  initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
+                >
+                  <label style={{ display: 'block', marginBottom: '16px', fontWeight: 700, fontSize: '1.1rem' }}>
+                    🦸‍♂️ Choose your companion!
+                  </label>
+                  <div className="theme-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '12px' }}>
+                    {CHARACTERS.map(c => (
+                      <motion.button
+                        key={c.id}
+                        type="button"
+                        whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.95 }}
+                        onClick={() => setCharacter(c.id)}
+                        style={{
+                          position: 'relative',
+                          height: '140px',
+                          borderRadius: 'var(--radius-lg)',
+                          border: `3px solid ${character === c.id ? '#8b5cf6' : 'transparent'}`,
+                          cursor: 'pointer', color: '#fff', textAlign: 'center',
+                          transition: 'all 0.25s',
+                          overflow: 'hidden',
+                          boxShadow: character === c.id ? '0 0 0 4px rgba(139, 92, 246, 0.3)' : '0 4px 12px rgba(0,0,0,0.2)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'flex-end',
+                          padding: 0
+                        }}
+                      >
+                        <img 
+                          src={c.icon} 
+                          alt={c.name} 
+                          style={{ 
+                            position: 'absolute', 
+                            top: 0, left: 0, 
+                            width: '100%', height: '100%', 
+                            objectFit: 'cover', zIndex: 0 
+                          }} 
+                        />
+                        {/* Gradient overlay to make text readable */}
+                        <div style={{
+                          position: 'absolute', bottom: 0, left: 0, width: '100%', height: '60%',
+                          background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%)',
+                          zIndex: 1
+                        }} />
+                        <div style={{ 
+                          position: 'relative', zIndex: 2, 
+                          fontWeight: 700, fontSize: '0.95rem', 
+                          paddingBottom: '12px',
+                          textShadow: '0 2px 4px rgba(0,0,0,0.8)'
+                        }}>
+                          {c.name}
+                        </div>
+                      </motion.button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
             </AnimatePresence>
 
             <motion.button
@@ -192,7 +260,7 @@ export default function Onboarding() {
               disabled={!canProceed()}
               style={{ width: '100%', marginTop: '28px', fontSize: '1.2rem', padding: '16px', opacity: canProceed() ? 1 : 0.5 }}
             >
-              {step < 2 ? 'Next →' : "Let's Go! 🚀"}
+              {step < 3 ? 'Next →' : "Let's Go! 🚀"}
             </motion.button>
           </form>
         </div>

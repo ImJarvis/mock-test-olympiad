@@ -18,6 +18,7 @@ export const useGameStore = create((set, get) => ({
   kidName: '',
   grade: 'Grade_2',
   theme: 'space',
+  character: 'explorer',
   proficiency: { ...DEFAULT_PROFICIENCY },
   totalXP: 0,
   questsCompleted: 0,
@@ -39,7 +40,7 @@ export const useGameStore = create((set, get) => ({
 
   // ─── Actions ────────────────────────────────────────────────
 
-  setProfile: ({ kidName, grade, theme }) => set({ kidName, grade, theme }),
+  setProfile: ({ kidName, grade, theme, character }) => set({ kidName, grade, theme, character }),
 
   startGame: () => {
     const { proficiency } = get();
