@@ -3,27 +3,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { useGameStore } from '../store/useGameStore';
 
-const STICKER_DEFS = {
-  space_helmet: { emoji: '👨‍🚀', label: 'Space Helmet', desc: 'Answered a space question!' },
-  math_crown: { emoji: '👑', label: 'Math Crown', desc: 'Mastered Number Detective!' },
-  logic_badge: { emoji: '🔮', label: 'Logic Badge', desc: 'Cracked a Pattern!' },
-  word_trophy: { emoji: '🏅', label: 'Word Trophy', desc: 'Aced a Grade 3 Word question!' },
-  streak_flame: { emoji: '🔥', label: 'Flame Hero', desc: 'Got a 3+ answer streak!' },
-  mystery_star: { emoji: '⭐', label: 'Quest Star', desc: 'Completed a quest!' },
-};
-
 export default function MysteryPack() {
-  const { unlockedStickers, startNextQuest, viewDashboard, theme } = useGameStore();
+  const { startNextQuest, viewDashboard, theme, claimPackGifts } = useGameStore();
   const [opened, setOpened] = useState(false);
   const [revealed, setRevealed] = useState([]);
 
-  const newStickers = Object.entries(unlockedStickers)
-    .filter(([, v]) => v)
-    .map(([k]) => k);
-
   const handleTearOpen = () => {
     setOpened(true);
-    setRevealed(newStickers);
+    const newGifts = claimPackGifts();
+    setRevealed(newGifts);
     confetti({
       particleCount: 180,
       spread: 90,
@@ -84,11 +72,10 @@ export default function MysteryPack() {
                   justifyItems: 'center',
                   marginBottom: '20px',
                 }}>
-                  {revealed.map((key, i) => {
-                    const s = STICKER_DEFS[key];
+                  {revealed.map((gift, i) => {
                     return (
                       <motion.div
-                        key={key}
+                        key={gift.id}
                         initial={{ scale: 0, rotate: -10 }} animate={{ scale: 1, rotate: 0 }}
                         transition={{ delay: i * 0.15, type: 'spring', stiffness: 150 }}
                         style={{
@@ -98,9 +85,9 @@ export default function MysteryPack() {
                           boxShadow: '0 4px 20px rgba(245,158,11,0.2)',
                         }}
                       >
-                        <div style={{ fontSize: '3rem', marginBottom: '8px' }}>{s.emoji}</div>
-                        <div style={{ fontWeight: 800, fontSize: '0.9rem' }}>{s.label}</div>
-                        <div style={{ fontSize: '0.75rem', opacity: 0.65, marginTop: 4 }}>{s.desc}</div>
+                        <div style={{ fontSize: '3rem', marginBottom: '8px' }}>{gift.emoji}</div>
+                        <div style={{ fontWeight: 800, fontSize: '0.9rem' }}>{gift.label}</div>
+                        <div style={{ fontSize: '0.75rem', opacity: 0.65, marginTop: 4 }}>{gift.desc}</div>
                       </motion.div>
                     );
                   })}

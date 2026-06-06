@@ -5,7 +5,7 @@ import { getProficiencyLabel } from '../engine/adaptive';
 
 export default function QuestFeedback() {
   const {
-    questResults, proficiency, kidName, openPack, startNextQuest, viewDashboard, theme, questsCompleted
+    questResults, proficiency, kidName, openPack, startNextQuest, viewDashboard, theme, questsCompleted, totalXP, mysteryPackPending
   } = useGameStore();
 
   const correctCount = questResults.filter(r => r.wasCorrect).length;
@@ -17,7 +17,7 @@ export default function QuestFeedback() {
     pct === 100 ? '🏆 Perfect Quest! You nailed it!' :
     pct >= 75 ? '⭐ Great job! Keep it up!' :
     pct >= 50 ? '👍 Good effort! Practice makes perfect.' :
-    '💪 Keep going! Every hero stumbles before they soar.';
+    '🔋 Recharging powers... Every hero learns from practice!';
 
   return (
     <div className={`page-container theme-${theme}`}>
@@ -29,12 +29,25 @@ export default function QuestFeedback() {
           transition={{ type: 'spring', stiffness: 100 }}
           style={{ padding: '36px 28px', textAlign: 'center' }}
         >
+          {/* XP Progress Bar */}
+          <div style={{ width: '100%', marginBottom: '24px', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ width: '100%', background: 'rgba(0,0,0,0.2)', borderRadius: 20, padding: 4, display: 'flex', alignItems: 'center' }}>
+              <div style={{ padding: '0 12px', fontWeight: 800, color: '#fcd34d' }}>⭐ {totalXP} XP</div>
+              <div style={{ flex: 1, height: 12, background: 'rgba(255,255,255,0.1)', borderRadius: 10, overflow: 'hidden', marginLeft: 8 }}>
+                 <motion.div 
+                   initial={{ width: 0 }} animate={{ width: `${Math.min(100, (totalXP % 1000) / 10)}%` }} 
+                   transition={{ duration: 1, delay: 0.5 }}
+                   style={{ height: '100%', background: '#fbbf24', borderRadius: 10 }}
+                 />
+              </div>
+            </div>
+          </div>
           {/* Score display */}
           <motion.div
             initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring' }}
             style={{ fontSize: '5rem', lineHeight: 1, marginBottom: '8px' }}
           >
-            {pct === 100 ? '🌟' : pct >= 75 ? '⭐' : pct >= 50 ? '👍' : '💪'}
+            {pct === 100 ? '🌟' : pct >= 75 ? '⭐' : pct >= 50 ? '👍' : '🔋'}
           </motion.div>
 
           <h2 style={{ fontSize: '1.6rem', marginBottom: '6px' }}>Quest Complete!</h2>
@@ -53,61 +66,34 @@ export default function QuestFeedback() {
             </div>
           </div>
 
-          {/* Per-question recap */}
-          <div style={{ marginBottom: '28px', textAlign: 'left' }}>
-            {questResults.map((r, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 * idx }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '12px',
-                  padding: '10px 14px', borderRadius: 12, marginBottom: 8,
-                  background: r.wasCorrect ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${r.wasCorrect ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)'}`,
-                }}
-              >
-                <span style={{ fontSize: '1.2rem' }}>{r.wasCorrect ? '✅' : '🔘'}</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {r.question.text.slice(0, 60)}...
-                  </div>
-                  <div style={{ fontSize: '0.75rem', opacity: 0.55, marginTop: 2 }}>
-                    {SKILL_ICONS[r.question.skill_category]} {r.question.skill_category}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-
-
           {/* Actions */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <motion.button
-              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-              className="btn btn-amber"
-              onClick={openPack}
-              style={{ fontSize: '1rem' }}
-            >
-              🎁 Open Pack!
-            </motion.button>
+          <div style={{ display: 'grid', gridTemplateColumns: mysteryPackPending ? '1fr 1fr' : '1fr', gap: '12px' }}>
+            {mysteryPackPending && (
+              <motion.button
+                whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                className="btn btn-amber"
+                onClick={openPack}
+                style={{ fontSize: '1rem' }}
+              >
+                🎁 Open Pack!
+              </motion.button>
+            )}
             <motion.button
               whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
               className="btn btn-primary"
               onClick={startNextQuest}
               style={{ fontSize: '1rem' }}
             >
-              Next Quest →
+              Next Quest 🚀
             </motion.button>
           </div>
           <motion.button
             whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
             className="btn btn-ghost"
             onClick={viewDashboard}
-            style={{ width: '100%', marginTop: '10px', fontSize: '0.95rem' }}
+            style={{ width: '100%', marginTop: '12px', fontSize: '1rem' }}
           >
-            📊 View Hero Stats
+            Hero Stats 📊
           </motion.button>
         </motion.div>
       </div>

@@ -6,7 +6,7 @@ import { useGameStore } from '../store/useGameStore';
 const THEMES = [
   { id: 'space', name: 'Space Explorer', icon: '🚀', color: '#3b82f6', bg: 'rgba(59,130,246,0.25)' },
   { id: 'jungle', name: 'Jungle Safari', icon: '🌿', color: '#10b981', bg: 'rgba(16,185,129,0.25)' },
-  { id: 'magic', name: 'Magic Academy', icon: '🪄', color: '#8b5cf6', bg: 'rgba(139,92,246,0.25)' },
+  { id: 'magic', name: 'Magic Academy', icon: '🧙‍♂️📚', color: '#8b5cf6', bg: 'rgba(139,92,246,0.25)' },
 ];
 
 const GRADES = [
